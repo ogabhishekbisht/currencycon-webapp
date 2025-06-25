@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Currency Converter Lite</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f4; }
+        h1 { color: #333; }
+        label, select, input { margin: 10px 0; display: block; }
+        button { margin-top: 10px; padding: 10px 20px; }
+        #result { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Currency Converter Lite</h1>
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" value="1" min="0" step="any">
+
+    <label for="fromCurrency">From:</label>
+    <select id="fromCurrency"></select>
+
+    <label for="toCurrency">To:</label>
+    <select id="toCurrency"></select>
+
+    <button onclick="convertCurrency()">Convert</button>
+
+    <div id="result"></div>
+
+    <script>
+        let exchangeRates = {};
+
+        async function fetchRates() {
+            const response = await fetch('https://open.er-api.com/v6/latest/USD');
+            const data = await response.json();
+            exchangeRates = data.rates;
+            populateCurrencySelectors();
+        }
+
+        function populateCurrencySelectors() {
+            const fromSelect = document.getElementById('fromCurrency');
+            const toSelect = document.getElementById('toCurrency');
+            for (const currency in exchangeRates) {
+                const option1 = document.createElement('option');
+                option1.value = currency;
+                option1.textContent = currency;
+                fromSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = currency;
+                option2.textContent = currency;
+                toSelect.appendChild(option2);
+            }
+            fromSelect.value = 'USD';
+            toSelect.value = 'EUR';
+        }
+
+        function convertCurrency() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const from = document.getElementById('fromCurrency').value;
+            const to = document.getElementById('toCurrency').value;
+
+            const usdAmount = amount / exchangeRates[from];
+            const convertedAmount = usdAmount * exchangeRates[to];
+
+            document.getElementById('result').textContent = 
+                `${amount} ${from} = ${convertedAmount.toFixed(2)} ${to}`;
+        }
+
+        fetchRates();
+    </script>
+</body>
+</html>
